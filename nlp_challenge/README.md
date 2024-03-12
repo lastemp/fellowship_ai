@@ -25,5 +25,5 @@ $ pwd
 1. Run the application:
 
    ```sh
-   py nlp_challenge.py aclImdb\train aclImdb\test
+   py nlp_challenge.py aclImdb
    ```

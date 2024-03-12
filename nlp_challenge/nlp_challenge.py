@@ -1,60 +1,23 @@
 
 import os
-# import random
-import re
 import sys
-import csv
 
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-#
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import classification_report
-
 import pandas as pd
-# import numpy as np
-
-# TEST_SIZE = 0.4
 
 
 def main():
 
     # Check command-line arguments
-    if len(sys.argv) != 3:
-        sys.exit("Usage: python nlp_challenge.py aclImdb\\train aclImdb\\test")
+    if len(sys.argv) != 2:
+        sys.exit("Usage: python nlp_challenge.py aclImdb")
 
-    # Load data from spreadsheet and split into train and test sets
-    # evidence, labels = load_data_1(sys.argv[1], sys.argv[2])
-    # print(len(evidence))
-    # print(labels)
-    """ X_train, X_test, y_train, y_test = train_test_split(
-        evidence, labels, test_size=TEST_SIZE
-    )
-
-    # Train model and make predictions
-    model = train_model(X_train, y_train)
-    predictions = model.predict(X_test)
-    sensitivity, specificity = evaluate(y_test, predictions)
-
-    # Print results
-    print(f"Correct: {(y_test == predictions).sum()}")
-    print(f"Incorrect: {(y_test != predictions).sum()}")
-    print(f"True Positive Rate: {100 * sensitivity:.2f}%")
-    print(f"True Negative Rate: {100 * specificity:.2f}%") """
-
-    # ***
-    """ data = load_data_1(sys.argv[1], sys.argv[2])
-    df = pd.DataFrame(data)
-
-    evidence = df["evidence"]
-    labels = df["labels"]
-
-    X_train, X_test, y_train, y_test = train_test_split(evidence, labels, test_size=0.2, random_state=42) """
-
-    training_data, test_data = load_data(sys.argv[1], sys.argv[2])
+    training_data, test_data = load_data(sys.argv[1])
     df_training = pd.DataFrame(training_data)
     df_test = pd.DataFrame(test_data)
 
@@ -82,99 +45,18 @@ def main():
     # """
 
     """ # MultinomialNB
-    clf = Pipeline([       
-     ('vectorizer', CountVectorizer()),   
-      ('Multi NB', MultinomialNB())])
-    # """
+    clf = Pipeline([
+        ('vectorizer', CountVectorizer()),
+        ('Multi NB', MultinomialNB())])
 
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
+    # """
 
     print(classification_report(y_test, y_pred))
 
 
-def load_data_1(training_directory, test_directory):
-    """
-    Load data from text file located in training and test directories.
-    """
-    data = dict()
-    evidence = []
-    labels = []
-    positive_dir = '\\pos'
-    negative_dir = '\\neg'
-    positive = 1
-    negative = 0
-
-    # training data
-    training_positive_dir = training_directory + positive_dir
-    training_negative_dir = training_directory + negative_dir
-
-    # test data
-    test_positive_dir = test_directory + positive_dir
-    test_negative_dir = test_directory + negative_dir
-
-    # training positive data
-    if os.path.exists(training_positive_dir):
-        # Extract contents in files
-        for filename in os.listdir(training_positive_dir):
-            if not filename.endswith(".txt"):
-                continue
-            with open(os.path.join(training_positive_dir, filename), encoding="utf8") as f:
-                contents = f.read()
-                evidence.append(contents)  # review
-                labels.append(positive)  # positive review
-
-    # training negative data
-    if os.path.exists(training_negative_dir):
-        # Extract contents in files
-        for filename in os.listdir(training_negative_dir):
-            if not filename.endswith(".txt"):
-                continue
-            with open(os.path.join(training_negative_dir, filename), encoding="utf8") as f:
-                contents = f.read()
-                evidence.append(contents)  # review
-                labels.append(negative)  # negative review
-
-    # test positive data
-    if os.path.exists(test_positive_dir):
-        # Extract contents in files
-        for filename in os.listdir(test_positive_dir):
-            if not filename.endswith(".txt"):
-                continue
-            with open(os.path.join(test_positive_dir, filename), encoding="utf8") as f:
-                contents = f.read()
-                evidence.append(contents)  # review
-                labels.append(positive)  # positive review
-
-    # test negative data
-    if os.path.exists(test_negative_dir):
-        # Extract contents in files
-        for filename in os.listdir(test_negative_dir):
-            if not filename.endswith(".txt"):
-                continue
-            with open(os.path.join(test_negative_dir, filename), encoding="utf8") as f:
-                contents = f.read()
-                evidence.append(contents)  # review
-                labels.append(negative)  # negative review
-
-    """ # Extract contents in files
-    for filename in os.listdir(directory):
-        if not filename.endswith(".txt"):
-            continue
-        with open(os.path.join(directory, filename)) as f:
-            contents = f.read()
-            evidence.append([contents]) # review
-            labels.append(positive)  # positive review """
-
-    # add items to dictionary
-    data["evidence"] = evidence
-    data["labels"] = labels
-
-    # return evidence, labels
-    return data
-
-
-def load_data(training_directory, test_directory):
+def load_data(directory):
     """
     Load data from text file located in training and test directories.
     """
@@ -184,18 +66,20 @@ def load_data(training_directory, test_directory):
     training_labels = []
     test_evidence = []
     test_labels = []
+    training_directory = '\\train'
+    test_directory = '\\test'
     positive_dir = '\\pos'
     negative_dir = '\\neg'
     positive = 1
     negative = 0
 
     # training data
-    training_positive_dir = training_directory + positive_dir
-    training_negative_dir = training_directory + negative_dir
+    training_positive_dir = directory + training_directory + positive_dir
+    training_negative_dir = directory + training_directory + negative_dir
 
     # test data
-    test_positive_dir = test_directory + positive_dir
-    test_negative_dir = test_directory + negative_dir
+    test_positive_dir = directory + test_directory + positive_dir
+    test_negative_dir = directory + test_directory + negative_dir
 
     # training positive data
     if os.path.exists(training_positive_dir):
