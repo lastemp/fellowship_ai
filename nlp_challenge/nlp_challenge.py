@@ -17,91 +17,78 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python nlp_challenge.py aclImdb")
 
-    training_data, test_data = load_data(sys.argv[1])
-    df_training = pd.DataFrame(training_data)
+    # Load data from text files(train/test sub-directories) and allocate into train and test sets
+    train_data, test_data = load_data(sys.argv[1])
+    df_train = pd.DataFrame(train_data)
     df_test = pd.DataFrame(test_data)
 
-    X_train = df_training["evidence"]
-    y_train = df_training["labels"]
+    X_train = df_train["evidence"]
+    y_train = df_train["labels"]
 
     X_test = df_test["evidence"]
     y_test = df_test["labels"]
 
-    # RandomForestClassifier
-    model = Pipeline([("count_vectorizer", CountVectorizer()),
-                      ("random_forest", RandomForestClassifier(n_estimators=50, criterion='entropy'))])
+    # Train model(RandomForestClassifier) and make predictions
+    model = train_model_random_forest_classifier(X_train, y_train)
+    y_predictions = model.predict(X_test)
 
-    model.fit(X_train, y_train)
+    """ # Train model(KNeighborsClassifier) and make predictions
+    model = train_model_k_neighbors_classifier(X_train, y_train)
+    y_predictions = model.predict(X_test) """
 
-    y_pred = model.predict(X_test)
-    #
+    """ # Train model(MultinomialNB) and make predictions
+    model = train_model_multinomial_nb(X_train, y_train)
+    y_predictions = model.predict(X_test) """
 
-    """ # KNeighborsClassifier
-    clf = Pipeline([('vectorizer', CountVectorizer()),   
-                ('KNN', (KNeighborsClassifier(n_neighbors=10, metric = 'euclidean')))])
-
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    # """
-
-    """ # MultinomialNB
-    clf = Pipeline([
-        ('vectorizer', CountVectorizer()),
-        ('Multi NB', MultinomialNB())])
-
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    # """
-
-    print(classification_report(y_test, y_pred))
+    print(classification_report(y_test, y_predictions))
 
 
 def load_data(directory):
     """
-    Load data from text file located in training and test directories.
+    Load data from text files located in train and test directories.
     """
-    training_data = dict()
+    train_data = dict()
     test_data = dict()
-    training_evidence = []
-    training_labels = []
+    train_evidence = []
+    train_labels = []
     test_evidence = []
     test_labels = []
-    training_directory = '\\train'
+    train_directory = '\\train'
     test_directory = '\\test'
     positive_dir = '\\pos'
     negative_dir = '\\neg'
     positive = 1
     negative = 0
 
-    # training data
-    training_positive_dir = directory + training_directory + positive_dir
-    training_negative_dir = directory + training_directory + negative_dir
+    # train data
+    train_positive_dir = directory + train_directory + positive_dir
+    train_negative_dir = directory + train_directory + negative_dir
 
     # test data
     test_positive_dir = directory + test_directory + positive_dir
     test_negative_dir = directory + test_directory + negative_dir
 
-    # training positive data
-    if os.path.exists(training_positive_dir):
+    # train positive data
+    if os.path.exists(train_positive_dir):
         # Extract contents in files
-        for filename in os.listdir(training_positive_dir):
+        for filename in os.listdir(train_positive_dir):
             if not filename.endswith(".txt"):
                 continue
-            with open(os.path.join(training_positive_dir, filename), encoding="utf8") as f:
+            with open(os.path.join(train_positive_dir, filename), encoding="utf8") as f:
                 contents = f.read()
-                training_evidence.append(contents)  # review
-                training_labels.append(positive)  # positive review
+                train_evidence.append(contents)  # review
+                train_labels.append(positive)  # positive review
 
-    # training negative data
-    if os.path.exists(training_negative_dir):
+    # train negative data
+    if os.path.exists(train_negative_dir):
         # Extract contents in files
-        for filename in os.listdir(training_negative_dir):
+        for filename in os.listdir(train_negative_dir):
             if not filename.endswith(".txt"):
                 continue
-            with open(os.path.join(training_negative_dir, filename), encoding="utf8") as f:
+            with open(os.path.join(train_negative_dir, filename), encoding="utf8") as f:
                 contents = f.read()
-                training_evidence.append(contents)  # review
-                training_labels.append(negative)  # negative review
+                train_evidence.append(contents)  # review
+                train_labels.append(negative)  # negative review
 
     # test positive data
     if os.path.exists(test_positive_dir):
@@ -126,21 +113,45 @@ def load_data(directory):
                 test_labels.append(negative)  # negative review
 
     # add items to dictionary
-    training_data["evidence"] = training_evidence
-    training_data["labels"] = training_labels
+    train_data["evidence"] = train_evidence
+    train_data["labels"] = train_labels
 
     test_data["evidence"] = test_evidence
     test_data["labels"] = test_labels
 
-    return training_data, test_data
+    return train_data, test_data
 
 
-def train_model(evidence, labels):
+def train_model_random_forest_classifier(evidence, labels):
     """
-    Given a list of evidence lists and a list of labels, return a
-    fitted k-nearest neighbor model (k=1) trained on the data.
+    Given a list of evidence and a list of labels, return a
+    fitted RandomForestClassifier model trained on the data.
     """
-    model = KNeighborsClassifier(n_neighbors=1)
+    model = Pipeline([("count_vectorizer", CountVectorizer()),
+                      ("random_forest", RandomForestClassifier(n_estimators=50, criterion='entropy'))])
+    model.fit(evidence, labels)
+    return model
+
+
+def train_model_k_neighbors_classifier(evidence, labels):
+    """
+    Given a list of evidence and a list of labels, return a
+    fitted k-nearest neighbor model (k=10) trained on the data.
+    """
+    model = Pipeline([('vectorizer', CountVectorizer()),
+                      ('KNN', (KNeighborsClassifier(n_neighbors=10, metric='euclidean')))])
+    model.fit(evidence, labels)
+    return model
+
+
+def train_model_multinomial_nb(evidence, labels):
+    """
+    Given a list of evidence and a list of labels, return a
+    fitted MultinomialNB model trained on the data.
+    """
+    model = Pipeline([
+        ('vectorizer', CountVectorizer()),
+        ('Multi NB', MultinomialNB())])
     model.fit(evidence, labels)
     return model
 

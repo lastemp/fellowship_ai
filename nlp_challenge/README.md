@@ -21,6 +21,16 @@ $ pwd
    ```sh
    pip3 install -r requirements.txt
    ```
+
+1. Download [IMDB Dataset of 50K Movie Reviews](https://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz):
+
+   ```
+   unzip downloaded zipped folder aclImdb_v1.tar.gz
+   ```
+   
+   ```
+   copy folder aclImdb into directory .../nlp_challenge
+   ```
    
 1. Run the application:
 
