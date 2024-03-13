@@ -47,9 +47,9 @@ $ pwd
    ```
    
    ```
-   KNeighborsClassifier - 64% Accuracy
+   MultinomialNB - 81% Accuracy
    ```
    
    ```
-   MultinomialNB - 81% Accuracy
+   KNeighborsClassifier - 64% Accuracy
    ```
