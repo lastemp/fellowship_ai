@@ -37,3 +37,9 @@ $ pwd
    ```sh
    py nlp_challenge.py aclImdb
    ```
+   
+   See [the classification report](./classification_report/) for more info on the results for the different algorithms.
+   
+   RandomForestClassifier - 83% Accuracy
+   KNeighborsClassifier - 64% Accuracy
+   MultinomialNB - 81% Accuracy
